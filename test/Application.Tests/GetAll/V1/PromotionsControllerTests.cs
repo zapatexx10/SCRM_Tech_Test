@@ -31,7 +31,7 @@ public class PromotionsControllerTests
     }
 
     [Fact]
-    public async Task GivenInvalidCountryCode_WhenGettingPromotions_ThenThrowsValidationException()
+    public async Task GivenValidCountryCodeAndLang_WhenGettingPromotions_ThenReturnsValidPromotions()
     {
         //Arrange
         var promotionResults = new List<PromotionModel>() { CreatePromotionModel() };
