@@ -19,13 +19,16 @@ public class GetAllPromotionsHandler : IHandler<GetAllPromotionsRequest, GetAllP
 
         try
         {
-            var promotions = await _repository.GetAll(request.CountryCode, cancellationToken).ToListAsync(cancellationToken);
+            var normalizedCountryCode = request.CountryCode.Trim().ToUpperInvariant();
+            var normalizedLanguageCode = request.LanguageCode.Trim().ToUpperInvariant();
+
+            var promotions = await _repository.GetAll(normalizedCountryCode, cancellationToken).ToListAsync(cancellationToken);
 
             var promotionModels = new List<PromotionModel>();
 
             foreach (var promotion in promotions)
             {
-                promotionModels.Add(promotion.ToPromotionModel(request.CountryCode));
+                promotionModels.Add(promotion.ToPromotionModel(normalizedLanguageCode));
             }
 
             return response
