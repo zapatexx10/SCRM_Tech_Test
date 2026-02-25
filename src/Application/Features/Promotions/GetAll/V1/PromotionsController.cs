@@ -1,5 +1,6 @@
-﻿using System.ComponentModel;
-using PromotionEngine.Application.Shared;
+﻿using PromotionEngine.Application.Shared;
+using PromotionEngine.Application.Shared.Attributes;
+using System.ComponentModel;
 
 namespace PromotionEngine.Application.Features.Promotions.GetAll.V1;
 
@@ -23,8 +24,8 @@ public class PromotionsController : FeatureControllerBase
     [EndpointSummary("GetPromotions")]
     [EndpointDescription("Get Promotions")]
     public async Task<IActionResult> Get(
-        [Description("ISO-3166 ALPHA-2")] string countryCode,
-        string languageCode,
+        [CountryCode] string countryCode,
+        [LanguageCode] string languageCode,
         CancellationToken cancellationToken)
     {
         var request = new GetAllPromotionsRequest(countryCode, languageCode);

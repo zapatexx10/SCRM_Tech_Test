@@ -14,7 +14,7 @@ public class DatabaseConnectionFactory : IDatabaseConnectionFactory
     //I think its better to get it directly from the configuration
     public DatabaseConnectionFactory(IConfiguration config)
     {
-        _dbConnectionString = config.GetConnectionString("PromotionsDatabase")
+        _dbConnectionString = config.GetConnectionString("DbConnection")
                               ?? throw new InvalidOperationException("Database connection string is not configured.");
     }
 
