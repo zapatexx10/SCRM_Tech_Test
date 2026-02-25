@@ -7,10 +7,10 @@ namespace PromotionEngine.Application.Features.Promotions.GetAll.V1;
 [Route("v1")]
 public class PromotionsController : FeatureControllerBase
 {
-    private readonly IHandler<Request, Response> _handler;
+    private readonly IHandler<GetAllPromotionsRequest, GetAllPromotionsResponse> _handler;
 
     public PromotionsController(
-        IHandler<Request, Response> handler,
+        IHandler<GetAllPromotionsRequest, GetAllPromotionsResponse> handler,
         ILogger<PromotionsController> logger) : base(logger)
     {
         _handler = handler;
@@ -18,7 +18,7 @@ public class PromotionsController : FeatureControllerBase
 
     [HttpGet("{countryCode}/promotions")]
     [Produces("application/json")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Response))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetAllPromotionsResponse))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [EndpointSummary("GetPromotions")]
     [EndpointDescription("Get Promotions")]
@@ -27,7 +27,7 @@ public class PromotionsController : FeatureControllerBase
         string languageCode,
         CancellationToken cancellationToken)
     {
-        var request = new Request(countryCode, languageCode);
+        var request = new GetAllPromotionsRequest(countryCode, languageCode);
 
         var response = await _handler.HandleAsync(request, cancellationToken);
 

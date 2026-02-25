@@ -6,9 +6,9 @@ public class PromotionModel
 {
     public required Guid PromotionId { get; set; }
     public PromotionTextsModel? Texts { get; set; }
-    public List<string> Images { get; set; } = new List<string>();
-    public List<Discount>? Discounts { get; set; }
     public required DateTime EndValidityDate;
+    public List<string> Images { get; set; } = new List<string>();
+    public List<Discount>? Discounts { get; set; }    
 }
 
 public class PromotionTextsModel
