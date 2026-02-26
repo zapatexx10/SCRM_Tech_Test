@@ -15,7 +15,6 @@ export function PromotionList() {
         setLoading(true)
 
         try {
-            //const response = await fetch('http://localhost:54679/api/v1/DE/promotions?languageCode=DE')
             const response = await fetch(`http://localhost:54679/api/v1/${country}/promotions?languageCode=${language}`)
 
             if (!response.ok) {

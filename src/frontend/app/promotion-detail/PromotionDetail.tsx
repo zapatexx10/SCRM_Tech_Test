@@ -190,7 +190,7 @@ export default function PromotionDetail() {
 
                                             {/* Prices */}
                                             <div className="space-y-2 mb-4">
-                                                {/* Original Price (strikethrough) */}
+                                                {/* Original Price */}
                                                 {discount.originalPrice !== discount.finalPrice && (
                                                     <div className="flex items-center gap-2">
                                                         <span className="text-sm text-gray-500">Original:</span>
@@ -200,7 +200,7 @@ export default function PromotionDetail() {
                                                     </div>
                                                 )}
                                                 
-                                                {/* Final Price (highlighted) */}
+                                                {/* Final Price*/}
                                                 <div className="flex items-center gap-2">
                                                     <span className="text-sm text-gray-700 font-medium">Final Price:</span>
                                                     <span className="text-3xl font-bold text-blue-600">
