@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Versioning;
 using PromotionEngine.Application.DependencyInjection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -12,6 +14,14 @@ builder
     .AddProblemDetails()
     .AddApplication(builder.Configuration)
     .AddEndpointsApiExplorer()
+    //Added this to handle API versioning
+    .AddApiVersioning(options =>
+    {
+        options.DefaultApiVersion = new ApiVersion(1, 0);
+        options.AssumeDefaultVersionWhenUnspecified = true;
+        options.ReportApiVersions = true;
+        options.ApiVersionReader = new UrlSegmentApiVersionReader();
+    })
     .AddControllers()
     .AddJsonOptions(options =>
     {

@@ -2,7 +2,7 @@
 using PromotionEngine.Application.Shared.Interfaces;
 using PromotionEngine.Application.Shared.Mappings;
 
-namespace PromotionEngine.Application.Features.Promotions.GetAll.V1;
+namespace PromotionEngine.Application.Features.Promotions.GetAll.V2;
 
 public class GetAllPromotionsHandler : IHandler<GetAllPromotionsRequest, GetAllPromotionsResponse>
 {
@@ -22,14 +22,17 @@ public class GetAllPromotionsHandler : IHandler<GetAllPromotionsRequest, GetAllP
             var normalizedCountryCode = request.CountryCode.Trim().ToUpperInvariant();
             var normalizedLanguageCode = request.LanguageCode.Trim().ToUpperInvariant();
 
-            var promotions = await _repository.GetAll(normalizedCountryCode, cancellationToken);
+            var promotions = (await _repository.GetAll(normalizedCountryCode, cancellationToken))
+                .Take(request.MaxPromotions);
 
             var promotionModels = promotions
                 .Select(p => p.ToPromotionModel(normalizedLanguageCode))
                 .ToList();
 
+            var totalCount = promotionModels.Count;
+
             return response
-                .SetPromotions(promotionModels);
+                .SetPromotions(promotionModels, totalCount);
         }
         catch (Exception ex)
         {

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using PromotionEngine.Application.Features.Promotions.GetById.V1;
 using PromotionEngine.Application.Shared;
 using PromotionEngine.Application.Shared.Interfaces;
 using PromotionEngine.Application.Shared.Repositories;
@@ -11,6 +12,8 @@ public static class ServiceCollectionExtensions
     {
         // Get Promotion list
         services.AddTransient<IHandler<Features.Promotions.GetAll.V1.GetAllPromotionsRequest, Features.Promotions.GetAll.V1.GetAllPromotionsResponse>, Features.Promotions.GetAll.V1.GetAllPromotionsHandler>();
+        services.AddTransient<IHandler<Features.Promotions.GetAll.V2.GetAllPromotionsRequest, Features.Promotions.GetAll.V2.GetAllPromotionsResponse>, Features.Promotions.GetAll.V2.GetAllPromotionsHandler>();
+        services.AddTransient<IHandler<GetPromotionByIdRequest, GetPromotionByIdResponse>, GetPromotionByIdHandler>();
         services.AddSingleton<IDatabaseConnectionFactory, DatabaseConnectionFactory>();
         services.AddScoped<IPromotionsRepository, PromotionsRepository>();
         return services;

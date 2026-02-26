@@ -4,12 +4,12 @@ using PromotionEngine.Entities;
 
 namespace PromotionEngine.Application.GetAll.V1;
 
-public class PromotionsHandlerTests
+public class GetAllHandlerTests
 {
     private readonly Mock<IPromotionsRepository> _repositoryMock;
     private readonly GetAllPromotionsHandler _getAllPromotionsHandler;
 
-    public PromotionsHandlerTests()
+    public GetAllHandlerTests()
     {
         _repositoryMock = new Mock<IPromotionsRepository>();
         _getAllPromotionsHandler = new GetAllPromotionsHandler(_repositoryMock.Object);
@@ -25,7 +25,7 @@ public class PromotionsHandlerTests
         var promotions = GetSamplePromotions();
 
         _repositoryMock.Setup(r => r.GetAll(request.CountryCode, default))
-               .Returns(promotions.ToAsyncEnumerable());
+               .ReturnsAsync(promotions);
 
         // Act
         var response = await _getAllPromotionsHandler.HandleAsync(request);
@@ -46,7 +46,7 @@ public class PromotionsHandlerTests
         var promotions = GetSamplePromotions();
 
         _repositoryMock.Setup(r => r.GetAll(request.CountryCode, default))
-               .Returns(promotions.ToAsyncEnumerable());
+               .ReturnsAsync(promotions);
 
         // Act
         var response = await _getAllPromotionsHandler.HandleAsync(request);

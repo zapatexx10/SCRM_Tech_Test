@@ -1,4 +1,4 @@
-﻿using PromotionEngine.Application.Features.Promotions.GetAll.V1;
+﻿using PromotionEngine.Application.Shared.Models;
 using PromotionEngine.Entities;
 
 namespace PromotionEngine.Application.Shared.Mappings;

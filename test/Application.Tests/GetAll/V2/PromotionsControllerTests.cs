@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using PromotionEngine.Application.Features.Promotions.GetAll.V1;
+using PromotionEngine.Application.Features.Promotions.GetAll.V2;
 using PromotionEngine.Application.Shared;
 using PromotionEngine.Application.Shared.Models;
 using PromotionEngine.Entities;
 
-namespace PromotionEngine.Application.GetAll.V1;
+namespace PromotionEngine.Application.GetAll.V2;
 
 public class PromotionsControllerTests
 {
@@ -38,14 +38,16 @@ public class PromotionsControllerTests
         var promotionResults = new List<PromotionModel>() { CreatePromotionModel() };
         var countryCode = "ES";
         var lang = "EN";
-        var request = new GetAllPromotionsRequest(countryCode, lang);
-        var response = new GetAllPromotionsResponse().SetPromotions(promotionResults);
+        var maxPromotions = 2;
+        var totalCount = promotionResults.Count;
+        var request = new GetAllPromotionsRequest(countryCode, lang, maxPromotions);
+        var response = new GetAllPromotionsResponse().SetPromotions(promotionResults, totalCount);
 
         _handlerMock.Setup(r => r.HandleAsync(request, default))
             .ReturnsAsync(response);
         
         //Act
-        var result = await _controller.Get(countryCode, lang, default);
+        var result = await _controller.Get(countryCode, lang, maxPromotions, default);
 
         //Assert
         _handlerMock.Verify(r => r.HandleAsync(request, default), Times.Once);
@@ -53,8 +55,8 @@ public class PromotionsControllerTests
         var okResult = result as OkObjectResult;
         Assert.NotNull(okResult);
         Assert.IsType<GetAllPromotionsResponse>(okResult.Value);
+        Assert.Equal(totalCount, (okResult.Value as GetAllPromotionsResponse)?.TotalCount);
         Assert.Equal(response, okResult.Value);
-
     }
 
     [Fact]
@@ -63,14 +65,15 @@ public class PromotionsControllerTests
         //Arrange
         var lang = "EN";
         var countryCode = "ES";
-        var request = new GetAllPromotionsRequest(countryCode, lang);
+        var maxPromotions = 2;
+        var request = new GetAllPromotionsRequest(countryCode, lang, maxPromotions);
         var response = new GetAllPromotionsResponse().SetException(new Exception("No promotions found"));
         
         _handlerMock.Setup(r => r.HandleAsync(request, default))
             .ReturnsAsync(response);
 
         //Act
-        var result = await _controller.Get(countryCode, lang, default);
+        var result = await _controller.Get(countryCode, lang, maxPromotions, default);
 
         //Assert
         _handlerMock.Verify(r => r.HandleAsync(request, default), Times.Once);
@@ -109,5 +112,4 @@ public class PromotionsControllerTests
             }
         };
     }
-
 }

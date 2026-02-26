@@ -1,25 +1,23 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using PromotionEngine.Application.Features.Promotions.GetAll.V1;
+using PromotionEngine.Application.Features.Promotions.GetById.V1;
 using PromotionEngine.Application.Shared;
 using PromotionEngine.Application.Shared.Models;
 using PromotionEngine.Entities;
 
-namespace PromotionEngine.Application.GetAll.V1;
+namespace PromotionEngine.Application.GetById.V1;
 
-public class PromotionsControllerTests
+public class GetAllControllerTests
 {
     private readonly Mock<ILogger<PromotionsController>> _loggerMock;
-    private readonly Mock<IHandler<GetAllPromotionsRequest, GetAllPromotionsResponse>> _handlerMock;
+    private readonly Mock<IHandler<GetPromotionByIdRequest, GetPromotionByIdResponse>> _handlerMock;
     private readonly PromotionsController _controller;
 
-    public PromotionsControllerTests()
+    public GetAllControllerTests()
     {
         _loggerMock = new Mock<ILogger<PromotionsController>>();
-        _handlerMock = new Mock<IHandler<GetAllPromotionsRequest, GetAllPromotionsResponse>>();
+        _handlerMock = new Mock<IHandler<GetPromotionByIdRequest, GetPromotionByIdResponse>>();
 
-        //We need to add this in order to make the Request.Path of the ProblemDetails,
-        //if not it will be null and the assertion will fail with null reference exception
         var context = new DefaultHttpContext();
 
         _controller = new PromotionsController(_handlerMock.Object, _loggerMock.Object)
@@ -35,26 +33,30 @@ public class PromotionsControllerTests
     public async Task GivenValidCountryCodeAndLang_WhenGettingPromotions_ThenReturnsValidPromotions()
     {
         //Arrange
-        var promotionResults = new List<PromotionModel>() { CreatePromotionModel() };
+        var promotionResult = CreatePromotionModel();
         var countryCode = "ES";
         var lang = "EN";
-        var request = new GetAllPromotionsRequest(countryCode, lang);
-        var response = new GetAllPromotionsResponse().SetPromotions(promotionResults);
+        var id = promotionResult.PromotionId;
+        var request = new GetPromotionByIdRequest(countryCode, lang, id);
+        var response = new GetPromotionByIdResponse().SetPromotion(promotionResult);
 
         _handlerMock.Setup(r => r.HandleAsync(request, default))
             .ReturnsAsync(response);
-        
+
         //Act
-        var result = await _controller.Get(countryCode, lang, default);
+        var result = await _controller.GetById(countryCode, lang, id, default);
 
         //Assert
         _handlerMock.Verify(r => r.HandleAsync(request, default), Times.Once);
         Assert.IsType<OkObjectResult>(result);
         var okResult = result as OkObjectResult;
         Assert.NotNull(okResult);
-        Assert.IsType<GetAllPromotionsResponse>(okResult.Value);
         Assert.Equal(response, okResult.Value);
-
+        Assert.IsType<GetPromotionByIdResponse>(okResult.Value);
+        var okResponse = okResult.Value as GetPromotionByIdResponse;
+        Assert.NotNull(okResponse);
+        Assert.NotNull(okResponse.Promotion);
+        Assert.Equal(id, okResponse.Promotion.PromotionId);
     }
 
     [Fact]
@@ -63,14 +65,15 @@ public class PromotionsControllerTests
         //Arrange
         var lang = "EN";
         var countryCode = "ES";
-        var request = new GetAllPromotionsRequest(countryCode, lang);
-        var response = new GetAllPromotionsResponse().SetException(new Exception("No promotions found"));
-        
+        var id = Guid.NewGuid();
+        var request = new GetPromotionByIdRequest(countryCode, lang, id);
+        var response = new GetPromotionByIdResponse().SetException(new Exception("No promotions found"));
+
         _handlerMock.Setup(r => r.HandleAsync(request, default))
             .ReturnsAsync(response);
 
         //Act
-        var result = await _controller.Get(countryCode, lang, default);
+        var result = await _controller.GetById(countryCode, lang, id, default);
 
         //Assert
         _handlerMock.Verify(r => r.HandleAsync(request, default), Times.Once);
@@ -109,5 +112,4 @@ public class PromotionsControllerTests
             }
         };
     }
-
 }
