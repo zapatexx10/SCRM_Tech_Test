@@ -1,4 +1,5 @@
 import {useEffect, useState} from 'react'
+import { Link, useNavigate } from "react-router";
 import './PromotionList.css'
 import type {Promotion} from "../models/Promotion.tsx";
 import type {PromotionResponse} from "../models/PromotionResponse.tsx";
@@ -6,18 +7,23 @@ import type {PromotionResponse} from "../models/PromotionResponse.tsx";
 export function PromotionList() {
     const [promotionList, setPromotionList] = useState<Promotion[]>([])
     const [loading, setLoading] = useState(false)
+    const [selectedLanguage, setSelectedLanguage] = useState('ES')
+    const [selectedCountry, setSelectedCountry] = useState('ES')
+    const navigate = useNavigate();
 
-    const fetchPromotions = async () => {
+    const fetchPromotions = async (country : string, language:string) => {
         setLoading(true)
 
         try {
-            const response = await fetch('/api/v1/DE/promotions?languageCode=DE')
+            //const response = await fetch('http://localhost:54679/api/v1/DE/promotions?languageCode=DE')
+            const response = await fetch(`http://localhost:54679/api/v1/${country}/promotions?languageCode=${language}`)
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`)
             }
 
             const data: PromotionResponse = await response.json()
+
             setPromotionList(data.promotions)
         } catch (err) {
             console.error('Error fetching promotions:', err)
@@ -27,8 +33,16 @@ export function PromotionList() {
     }
 
     useEffect(() => {
-        fetchPromotions()
-    }, [])
+        fetchPromotions(selectedCountry, selectedLanguage)
+    }, [selectedCountry, selectedLanguage])
+
+    const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedLanguage(event.target.value)
+    }
+
+    const handleCountryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedCountry(event.target.value)
+    }
 
     return (
         <main className="min-h-screen p-4 md:p-8 bg-linear-to-tr from-[#0000ff] to-[#ffff00]">
@@ -40,6 +54,43 @@ export function PromotionList() {
                         <h2 id="promotion-heading" className="text-2xl text-center font-bold text-gray-800">
                             Promotions
                         </h2>
+                        <br></br>
+                        {/* Country and Language Selectors */}
+                            <div className="flex flex-col sm:flex-row items-center gap-4">
+                                
+                                {/* Country Selector */}
+                                <div className="flex items-center gap-3">
+                                    <label htmlFor="country-select" className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                                        Country:
+                                    </label>
+                                    <select
+                                        id="country-select"
+                                        value={selectedCountry}
+                                        onChange={handleCountryChange}
+                                        className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 font-medium shadow-sm hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer"
+                                    >
+                                        <option value="DE">Germany</option>
+                                        <option value="ES">Spain</option>
+                                        <option value="EN">United Kingdom</option>
+                                    </select>
+                                </div>
+
+                                {/* Language Selector */}
+                                <div className="flex items-center gap-3">
+                                    <label htmlFor="language-select" className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                                        Language:
+                                    </label>
+                                    <select
+                                        id="language-select"
+                                        value={selectedLanguage}
+                                        onChange={handleLanguageChange}
+                                        className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 font-medium shadow-sm hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer">
+                                        <option value="DE">German</option>
+                                        <option value="EN">English</option>
+                                        <option value="ES">Spanish</option>
+                                    </select>
+                                </div>
+                            </div>
                     </div>
 
                     <div className="p-6">
@@ -63,8 +114,11 @@ export function PromotionList() {
                         {promotionList.length > 0 && (
                             <div className="grid grid-cols-1 gap-6">
                                 {promotionList.map((promotion) => (
-                                    <article
+                                    // <article
+                                    <Link
                                         key={promotion.promotionId}
+                                        // to={`/promotion/${promotion.promotionId}`}
+                                        to={`/promotion/${promotion.promotionId}?country=${selectedCountry}&lang=${selectedLanguage}`}
                                         className="flex flex-col sm:flex-row border sm:h-48 border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200 bg-white"
                                         aria-label={`Promotion ${promotion.texts.title}`}
                                     >
@@ -90,8 +144,8 @@ export function PromotionList() {
                                                     {promotion.texts.discountDescription}
                                                 </div>
                                             </footer>
-                                        </div>
-                                    </article>
+                                        </div>                                        
+                                    </Link>
                                 ))}
                             </div>
                         )}
