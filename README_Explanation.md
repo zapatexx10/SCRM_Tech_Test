@@ -38,6 +38,9 @@ With this decision we use the Dependency Inversion Principle, which is one of th
 
 I moved the connection string and the initialization of the "database"
 
+## PromotionRepository
+First I created a GetAll returning a list of promotions, but investigating I prefer to return a IAsyncEnumerable, because it's more efficient, dont allocate the X number of Promotions in RAM memory...
+
 ## DatabaseConnectionFactory
 I created a DatabaseConnectionFactory in order to set the connection string only once, and every Repository (if we had more) will benefit for this. Also we have the connection string only in one place instead of initialize and have it hardcoded in every Handler or Repository like it was before. 
 Also, I did it because it can be useful in the future if we need to create multiple connections or if we need to add some logic before creating the connection.
@@ -48,6 +51,41 @@ And its easy to replace for a real database connection instead of a simulated on
 I created two validation attributes using the library DataAnnotations
 This two attributes checks that the language or country are not null or empty/whitespace, has two chars and that those chars are not digits.
 I use them in the GetAll, and GetById endpoints. 
+
+## HTTP RESTful
+I see that the endpoints are not returning the http codes that it should and if we dont find something in the list it returns a 500 with the message "No element found", or something like this. I would loved to update the Request and make it generic, and add more types like Success, NotFound, Error...
+But I realized at the end, that it would be a big change and it would affect a lot of code and tests that I would have to refactor, so I decided to leave it as it is. But I want to show you how I would do it if I had more time: 
+
+```csharp
+
+public abstract record Result<T>
+{
+    public record Success(T Value) : Result<T>;
+    public record NotFound(string Message) : Result<T>;
+    public record Error(string Message) : Result<T>;
+}
+
+// Examples of using:
+if (promotion is null)
+{
+//Not found(404)
+    return new Result<PromotionModel>.NotFound($"Discount {request.DiscountId} not found");
+}
+
+//Found(OK)
+return new Result<PromotionModel>.Success(promotionModel);
+
+// In the Controller:
+return result switch
+{
+    Result<PromotionModel>.Success(var dto) => Ok(dto),
+    Result<PromotionModel>.NotFound(var msg) => NotFound(new { error = msg }),
+    Result<PromotionModel>.Error(var msg) => BadRequest(new { error = msg }),
+    _ => StatusCode(500)
+};
+```
+Or add an ExceptionHandlerMiddleWhare that checks the type of exception and returns the correct http code...
+
 
 ## Added the CORS 
 I added the CORS policy in order to communicate propertly with the frontend.

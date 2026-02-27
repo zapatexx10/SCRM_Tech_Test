@@ -22,6 +22,7 @@ public class PromotionsController : FeatureControllerBase
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetAllPromotionsResponse))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [EndpointSummary("GetPromotions")]
     [EndpointDescription("Get Promotions")]
     public async Task<IActionResult> Get(

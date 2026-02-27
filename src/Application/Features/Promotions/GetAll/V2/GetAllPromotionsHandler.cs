@@ -1,6 +1,7 @@
 ﻿using PromotionEngine.Application.Shared;
 using PromotionEngine.Application.Shared.Interfaces;
 using PromotionEngine.Application.Shared.Mappings;
+using PromotionEngine.Application.Shared.Models;
 
 namespace PromotionEngine.Application.Features.Promotions.GetAll.V2;
 
@@ -22,12 +23,14 @@ public class GetAllPromotionsHandler : IHandler<GetAllPromotionsRequest, GetAllP
             var normalizedCountryCode = request.CountryCode.Trim().ToUpperInvariant();
             var normalizedLanguageCode = request.LanguageCode.Trim().ToUpperInvariant();
 
-            var promotions = (await _repository.GetAll(normalizedCountryCode, cancellationToken))
-                .Take(request.MaxPromotions);
+            var promotionsStreaming = _repository.GetAllStreamingFiltered(normalizedCountryCode, request.MaxPromotions, cancellationToken);
 
-            var promotionModels = promotions
-                .Select(p => p.ToPromotionModel(normalizedLanguageCode))
-                .ToList();
+            var promotionModels = new List<PromotionModel>();
+
+            await foreach (var promotion in promotionsStreaming)
+            {
+                promotionModels.Add(promotion.ToPromotionModel(normalizedLanguageCode));
+            }
 
             var totalCount = promotionModels.Count;
 

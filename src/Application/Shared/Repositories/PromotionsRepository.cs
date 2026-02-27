@@ -26,21 +26,9 @@ public class PromotionsRepository : IPromotionsRepository
         return promotions;
     }
 
-    public async Task<List<Promotion>> GetAllFiltered(string countryCode, int maxPromotions, CancellationToken cancellationToken)
-    {
-        using var databaseConnection = _connectionFactory.Create();
-
-        var promotions = await databaseConnection
-            .QueryAsync(_ => _.CountryCode == countryCode, cancellationToken)
-            .Take(maxPromotions)
-            .ToListAsync(cancellationToken);
-
-        return promotions;
-    }
-
     //In the case of millions of promotions (not this case), we should consider using streaming instead of loading all promotions into memory at once.
     //In case of using this method we need to change the handler foreach ==> await foreach 
-    //I use this await foreach here in order to keep the connection alive while looping through the promotions, and to ensure that we are not loading all promotions into memory at once,
+    //I use this await foreach here in order to keep the connection alive while looping through the promotions (because of the using), and to ensure that we are not loading all promotions into memory at once,
     //which can be beneficial when dealing with a large number of promotions.
 
     public async IAsyncEnumerable<Promotion> GetAllStreaming(string countryCode, [EnumeratorCancellation] CancellationToken cancellationToken)
@@ -53,7 +41,29 @@ public class PromotionsRepository : IPromotionsRepository
         {
             yield return promotion;
         }
-    }    
+    }
+
+    public async IAsyncEnumerable<Promotion> GetAllStreamingFiltered(
+    string countryCode,
+    int maxItems,
+    [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        using var databaseConnection = _connectionFactory.Create();
+        var count = 0;
+
+        await foreach (var promotion in databaseConnection
+            .QueryAsync(_ => _.CountryCode == countryCode, cancellationToken)
+            .WithCancellation(cancellationToken))
+        {
+            if (count >= maxItems)
+                yield break;
+
+            yield return promotion;
+            count++;
+        }
+    }
+
+    
 
     public async Task<Promotion?> GetByIdAsync(string countryCode, Guid promotionId, CancellationToken cancellationToken)
     {

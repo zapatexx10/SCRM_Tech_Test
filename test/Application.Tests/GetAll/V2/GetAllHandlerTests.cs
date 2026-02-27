@@ -25,8 +25,8 @@ public class GetAllHandlerTests
         var request = new GetAllPromotionsRequest(countryCode, languageCode, maxPromotions);
         var promotions = GetSamplePromotions();
 
-        _repositoryMock.Setup(r => r.GetAll(request.CountryCode, default))
-               .ReturnsAsync(promotions);
+        _repositoryMock.Setup(r => r.GetAllStreamingFiltered(request.CountryCode, maxPromotions, default))
+              .Returns(promotions.ToAsyncEnumerable());
 
         // Act
         var response = await _getAllPromotionsHandler.HandleAsync(request);
@@ -47,8 +47,8 @@ public class GetAllHandlerTests
         var request = new GetAllPromotionsRequest(countryCode, languageCode, maxPromotions);
         var promotions = GetSamplePromotions();
 
-        _repositoryMock.Setup(r => r.GetAll(request.CountryCode, default))
-               .ReturnsAsync(promotions);
+        _repositoryMock.Setup(r => r.GetAllStreamingFiltered(request.CountryCode, maxPromotions, default))
+              .Returns(promotions.ToAsyncEnumerable());
 
         // Act
         var response = await _getAllPromotionsHandler.HandleAsync(request);
