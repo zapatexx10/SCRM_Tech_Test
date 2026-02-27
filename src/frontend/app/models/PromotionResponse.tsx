@@ -3,3 +3,7 @@
 export interface PromotionResponse {
     promotions: Promotion[];
 }
+
+export interface PromotionDetailResponse {
+    promotion: Promotion;
+}

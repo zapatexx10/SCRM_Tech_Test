@@ -1,15 +1,18 @@
-﻿namespace PromotionEngine.Application.Features.Promotions.GetAll.V1;
+﻿using PromotionEngine.Application.Shared.Models;
 
-public class Response
+namespace PromotionEngine.Application.Features.Promotions.GetAll.V1;
+
+public class GetAllPromotionsResponse
 {
     public IEnumerable<PromotionModel> Promotions { get; private set; } = Enumerable.Empty<PromotionModel>();
 
     [JsonIgnore]
     public bool ExceptionOccurred { get; private set; }
+
     [JsonIgnore]
     public Exception? Exception { get; private set; }
-    
-    public Response SetException(Exception ex)
+
+    public GetAllPromotionsResponse SetException(Exception ex)
     {
         ArgumentNullException.ThrowIfNull(ex, nameof(ex));
 
@@ -19,7 +22,7 @@ public class Response
         return this;
     }
 
-    public Response SetPromotions(IEnumerable<PromotionModel> promotions)
+    public GetAllPromotionsResponse SetPromotions(IEnumerable<PromotionModel> promotions)
     {
         Promotions = promotions;
 

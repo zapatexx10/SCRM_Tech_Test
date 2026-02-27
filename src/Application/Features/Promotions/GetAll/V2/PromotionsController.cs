@@ -1,12 +1,12 @@
 ﻿using PromotionEngine.Application.Shared;
 using PromotionEngine.Application.Shared.Attributes;
-using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
-namespace PromotionEngine.Application.Features.Promotions.GetAll.V1;
+namespace PromotionEngine.Application.Features.Promotions.GetAll.V2;
 
 [ApiController]
 [Route("v{version:apiVersion}")]
-[ApiVersion("1.0")]
+[ApiVersion("2.0")]
 public class PromotionsController : FeatureControllerBase
 {
     private readonly IHandler<GetAllPromotionsRequest, GetAllPromotionsResponse> _handler;
@@ -28,9 +28,10 @@ public class PromotionsController : FeatureControllerBase
     public async Task<IActionResult> Get(
         [CountryCode] string countryCode,
         [LanguageCode] string languageCode,
+        [Range(1, int.MaxValue)] int maxPromotions,
         CancellationToken cancellationToken)
     {
-        var request = new GetAllPromotionsRequest(countryCode, languageCode);
+        var request = new GetAllPromotionsRequest(countryCode, languageCode, maxPromotions);
 
         var response = await _handler.HandleAsync(request, cancellationToken);
 

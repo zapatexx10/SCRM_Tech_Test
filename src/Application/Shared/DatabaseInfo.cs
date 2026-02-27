@@ -134,6 +134,7 @@ public class DatabaseConnection(string connectionString) : IDisposable
                 DisplayContent = new Dictionary<string, DisplayContent>()
                 {
                     {
+                        //In the frontend appears this DisplayContent when we are searching for DE country and DE language offers, but the strings are in english...
                         "DE",
                         new DisplayContent
                         {
